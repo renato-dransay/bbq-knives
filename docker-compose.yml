@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: bbq_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: medusa-bbq
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bbq_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: bbq_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - bbq_network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  bbq_network:
+    driver: bridge

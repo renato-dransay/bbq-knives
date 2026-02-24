@@ -4,8 +4,8 @@ import { SortOptions } from "@modules/store/components/refinement-list/sort-prod
 import StoreTemplate from "@modules/store/templates"
 
 export const metadata: Metadata = {
-  title: "Store",
-  description: "Explore all of our products.",
+  title: "All Knives | BBQ Knives",
+  description: "Explore our complete collection of handmade BBQ knives crafted in Germany.",
 }
 
 type Params = {

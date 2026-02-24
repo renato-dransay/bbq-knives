@@ -2,6 +2,73 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+@layer base {
+  /* BBQ Knives dark theme base styles */
+  html[data-mode="dark"] body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  html[data-mode="dark"] h1,
+  html[data-mode="dark"] h2,
+  html[data-mode="dark"] h3,
+  html[data-mode="dark"] h4,
+  html[data-mode="dark"] h5,
+  html[data-mode="dark"] h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  /* Medusa UI dark theme overrides */
+  html[data-mode="dark"] {
+    /* Foreground colors */
+    --fg-base: #fafafa;
+    --fg-subtle: #a3a3a3;
+    --fg-muted: #737373;
+    --fg-disabled: #525252;
+    --fg-on-color: #fafafa;
+    --fg-interactive: #d97706;
+    --fg-interactive-hover: #f59e0b;
+    --fg-error: #ef4444;
+    --fg-error-secondary: #fca5a5;
+
+    /* Background colors */
+    --bg-base: #0a0a0a;
+    --bg-subtle: #1a1a1a;
+    --bg-subtle-hover: #252525;
+    --bg-subtle-pressed: #2a2a2a;
+    --bg-component: #1a1a1a;
+    --bg-switch-off: #404040;
+    --bg-interactive: #d97706;
+    --bg-overlay: rgba(10, 10, 10, 0.75);
+    --bg-highlight: rgba(217, 119, 6, 0.15);
+    --bg-highlight-hover: rgba(217, 119, 6, 0.2);
+    --bg-toggle-off: #404040;
+    --bg-field: #171717;
+    --bg-field-hover: #262626;
+
+    /* Border colors */
+    --border-base: #2a2a2a;
+    --border-strong: #404040;
+    --border-interactive: #d97706;
+    --border-error: #ef4444;
+    --border-danger: #ef4444;
+    --border-loud: #737373;
+
+    /* Button colors */
+    --button-inverted: #fafafa;
+    --button-inverted-hover: #e5e5e5;
+    --button-inverted-pressed: #d4d4d4;
+    --button-neutral: #262626;
+    --button-neutral-hover: #404040;
+    --button-neutral-pressed: #525252;
+    --button-danger: #dc2626;
+    --button-danger-hover: #ef4444;
+    --button-danger-pressed: #b91c1c;
+    --button-transparent: transparent;
+    --button-transparent-hover: rgba(255, 255, 255, 0.08);
+    --button-transparent-pressed: rgba(255, 255, 255, 0.12);
+  }
+}
+
 @layer utilities {
   /* Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {
@@ -108,5 +175,18 @@
 
   .text-3xl-semi {
     @apply text-[32px] leading-[44px] font-semibold;
+  }
+
+  /* BBQ Knives custom components */
+  .btn-primary {
+    @apply bg-accent hover:bg-accent-light text-white font-medium py-3 px-6 rounded-lg transition-colors;
+  }
+
+  .btn-secondary {
+    @apply bg-card hover:bg-card-hover text-foreground font-medium py-3 px-6 rounded-lg border border-border transition-colors;
+  }
+
+  .card-dark {
+    @apply bg-card rounded-xl border border-border p-6;
   }
 }

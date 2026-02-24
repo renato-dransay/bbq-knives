@@ -18,6 +18,7 @@ type MobileActionsProps = {
   updateOptions: (title: string, value: string) => void
   inStock?: boolean
   handleAddToCart: () => void
+  handleRequestClick?: () => void
   isAdding?: boolean
   show: boolean
   optionsDisabled: boolean
@@ -30,6 +31,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
   updateOptions,
   inStock,
   handleAddToCart,
+  handleRequestClick,
   isAdding,
   show,
   optionsDisabled,
@@ -70,7 +72,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
           leaveTo="opacity-0"
         >
           <div
-            className="bg-white flex flex-col gap-y-3 justify-center items-center text-large-regular p-4 h-full w-full border-t border-gray-200"
+            className="bg-ui-bg-base flex flex-col gap-y-3 justify-center items-center text-large-regular p-4 h-full w-full border-t border-ui-border-base"
             data-testid="mobile-actions"
           >
             <div className="flex items-center gap-x-2">
@@ -116,19 +118,25 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                   <ChevronDown />
                 </div>
               </Button>}
-              <Button
-                onClick={handleAddToCart}
-                disabled={!inStock || !variant}
-                className="w-full"
-                isLoading={isAdding}
-                data-testid="mobile-cart-button"
-              >
-                {!variant
-                  ? "Select variant"
-                  : !inStock
-                  ? "Out of stock"
-                  : "Add to cart"}
-              </Button>
+              {inStock ? (
+                <Button
+                  onClick={handleAddToCart}
+                  disabled={!variant}
+                  className="w-full"
+                  isLoading={isAdding}
+                  data-testid="mobile-cart-button"
+                >
+                  {!variant ? "Select variant" : "Add to cart"}
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleRequestClick}
+                  className="w-full bg-amber-600 hover:bg-amber-500 text-white"
+                  data-testid="mobile-request-button"
+                >
+                  Request This Knife
+                </Button>
+              )}
             </div>
           </div>
         </Transition>
@@ -144,7 +152,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-gray-700 bg-opacity-75 backdrop-blur-sm" />
+            <div className="fixed inset-0 bg-black bg-opacity-75 backdrop-blur-sm" />
           </Transition.Child>
 
           <div className="fixed bottom-0 inset-x-0">
@@ -165,13 +173,13 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                   <div className="w-full flex justify-end pr-6">
                     <button
                       onClick={close}
-                      className="bg-white w-12 h-12 rounded-full text-ui-fg-base flex justify-center items-center"
+                      className="bg-ui-bg-base w-12 h-12 rounded-full text-ui-fg-base flex justify-center items-center"
                       data-testid="close-modal-button"
                     >
                       <X />
                     </button>
                   </div>
-                  <div className="bg-white px-6 py-12">
+                  <div className="bg-ui-bg-base px-6 py-12">
                     {(product.variants?.length ?? 0) > 1 && (
                       <div className="flex flex-col gap-y-6">
                         {(product.options || []).map((option) => {

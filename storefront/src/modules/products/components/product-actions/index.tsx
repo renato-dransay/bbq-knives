@@ -6,6 +6,7 @@ import { HttpTypes } from "@medusajs/types"
 import { Button } from "@medusajs/ui"
 import Divider from "@modules/common/components/divider"
 import OptionSelect from "@modules/products/components/product-actions/option-select"
+import KnifeRequestForm from "@modules/products/components/knife-request-form"
 import { isEqual } from "lodash"
 import { useParams, usePathname, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
@@ -38,6 +39,7 @@ export default function ProductActions({
 
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
   const [isAdding, setIsAdding] = useState(false)
+  const [isRequestFormOpen, setIsRequestFormOpen] = useState(false)
   const countryCode = useParams().countryCode as string
 
   // If there is only 1 variant, preselect the options
@@ -162,26 +164,32 @@ export default function ProductActions({
 
         <ProductPrice product={product} variant={selectedVariant} />
 
-        <Button
-          onClick={handleAddToCart}
-          disabled={
-            !inStock ||
-            !selectedVariant ||
-            !!disabled ||
-            isAdding ||
-            !isValidVariant
-          }
-          variant="primary"
-          className="w-full h-10"
-          isLoading={isAdding}
-          data-testid="add-product-button"
-        >
-          {!selectedVariant && !options
-            ? "Select variant"
-            : !inStock || !isValidVariant
-            ? "Out of stock"
-            : "Add to cart"}
-        </Button>
+        {inStock && isValidVariant ? (
+          <Button
+            onClick={handleAddToCart}
+            disabled={
+              !selectedVariant ||
+              !!disabled ||
+              isAdding
+            }
+            variant="primary"
+            className="w-full h-10"
+            isLoading={isAdding}
+            data-testid="add-product-button"
+          >
+            {!selectedVariant && !options ? "Select variant" : "Add to cart"}
+          </Button>
+        ) : (
+          <Button
+            onClick={() => setIsRequestFormOpen(true)}
+            disabled={!!disabled}
+            variant="secondary"
+            className="w-full h-10 bg-amber-600 hover:bg-amber-500 text-white border-amber-600"
+            data-testid="request-product-button"
+          >
+            Request This Knife
+          </Button>
+        )}
         <MobileActions
           product={product}
           variant={selectedVariant}
@@ -189,11 +197,20 @@ export default function ProductActions({
           updateOptions={setOptionValue}
           inStock={inStock}
           handleAddToCart={handleAddToCart}
+          handleRequestClick={() => setIsRequestFormOpen(true)}
           isAdding={isAdding}
           show={!inView}
           optionsDisabled={!!disabled || isAdding}
         />
       </div>
+
+      {/* Knife Request Form Modal */}
+      <KnifeRequestForm
+        product={product}
+        selectedOptions={options}
+        isOpen={isRequestFormOpen}
+        onClose={() => setIsRequestFormOpen(false)}
+      />
     </>
   )
 }

@@ -21,12 +21,13 @@ export default function CollectionTemplate({
   const sort = sortBy || "created_at"
 
   return (
-    <div className="flex flex-col small:flex-row small:items-start py-6 content-container">
-      <RefinementList sortBy={sort} />
-      <div className="w-full">
-        <div className="mb-8 text-2xl-semi">
-          <h1>{collection.title}</h1>
-        </div>
+    <div className="bg-ui-bg-base min-h-screen">
+      <div className="flex flex-col small:flex-row small:items-start py-6 content-container">
+        <RefinementList sortBy={sort} />
+        <div className="w-full">
+          <div className="mb-8 text-2xl-semi">
+            <h1 className="text-ui-fg-base">{collection.title}</h1>
+          </div>
         <Suspense
           fallback={
             <SkeletonProductGrid
@@ -41,6 +42,7 @@ export default function CollectionTemplate({
             countryCode={countryCode}
           />
         </Suspense>
+        </div>
       </div>
     </div>
   )

@@ -6,9 +6,9 @@ import { listCollections } from "@lib/data/collections"
 import { getRegion } from "@lib/data/regions"
 
 export const metadata: Metadata = {
-  title: "Medusa Next.js Starter Template",
+  title: "BBQ Knives | Handmade in Germany",
   description:
-    "A performant frontend ecommerce starter template with Next.js 15 and Medusa.",
+    "Premium handmade barbecue knives crafted with passion in Germany. Damascus, Carbon Steel, and Tool Steel blades for pitmasters.",
 }
 
 export default async function Home(props: {
@@ -29,13 +29,13 @@ export default async function Home(props: {
   }
 
   return (
-    <>
+    <div className="bg-background">
       <Hero />
       <div className="py-12">
         <ul className="flex flex-col gap-x-6">
           <FeaturedProducts collections={collections} region={region} />
         </ul>
       </div>
-    </>
+    </div>
   )
 }

@@ -1,0 +1,13 @@
+node_modules
+.git
+.gitignore
+.env
+.env.*
+!.env.template
+*.md
+.next
+coverage
+.DS_Store
+*.log
+.yarn/cache
+.yarn/install-state.gz

@@ -34,6 +34,18 @@ module.exports = {
           80: "#1F2937",
           90: "#111827",
         },
+        // BBQ Knives dark theme colors
+        background: "#0a0a0a",
+        foreground: "#fafafa",
+        card: "#1a1a1a",
+        "card-hover": "#252525",
+        border: "#2a2a2a",
+        accent: {
+          DEFAULT: "#d97706", // amber-600
+          light: "#f59e0b",   // amber-500
+          dark: "#b45309",    // amber-700
+        },
+        muted: "#737373",
       },
       borderRadius: {
         none: "0px",

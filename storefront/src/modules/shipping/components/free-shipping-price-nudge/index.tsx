@@ -142,9 +142,9 @@ function FreeShippingInline({
   }
 }) {
   return (
-    <div className="bg-neutral-100 p-2 rounded-lg border">
+    <div className="bg-ui-bg-subtle p-2 rounded-lg border border-ui-border-base">
       <div className="space-y-1.5">
-        <div className="flex justify-between text-xs text-neutral-600">
+        <div className="flex justify-between text-xs text-ui-fg-muted">
           <div>
             {price.target_reached ? (
               <div className="flex items-center gap-1.5">
@@ -162,7 +162,7 @@ function FreeShippingInline({
             })}
           >
             Only{" "}
-            <span className="text-neutral-950">
+            <span className="text-ui-fg-base">
               {convertToLocale({
                 amount: price.target_remaining,
                 currency_code: cart.currency_code,
@@ -181,7 +181,7 @@ function FreeShippingInline({
             )}
             style={{ width: `${price.remaining_percentage}%` }}
           ></div>
-          <div className="bg-neutral-300 h-1 rounded-full w-fit flex-grow"></div>
+          <div className="bg-ui-border-base h-1 rounded-full w-fit flex-grow"></div>
         </div>
       </div>
     </div>

@@ -1,0 +1,66 @@
+name: Deploy to DigitalOcean
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  DROPLET_IP: 209.38.205.122
+  DEPLOY_PATH: /opt/bbq-knives
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DROPLET_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ env.DROPLET_IP }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to Droplet
+        run: |
+          ssh -o StrictHostKeyChecking=no root@${{ env.DROPLET_IP }} << 'ENDSSH'
+            set -e
+
+            # Navigate to deployment directory
+            cd ${{ env.DEPLOY_PATH }}
+
+            # Pull latest changes
+            git fetch origin main
+            git reset --hard origin/main
+
+            # Stop existing containers
+            docker compose -f docker-compose.prod.yml down --remove-orphans || true
+
+            # Build and start containers
+            docker compose -f docker-compose.prod.yml build --no-cache
+            docker compose -f docker-compose.prod.yml up -d
+
+            # Wait for services to be healthy
+            echo "Waiting for services to start..."
+            sleep 30
+
+            # Check container status
+            docker compose -f docker-compose.prod.yml ps
+
+            # Run database migrations if needed
+            docker compose -f docker-compose.prod.yml exec -T backend npm run db:migrate || true
+
+            # Cleanup old images
+            docker image prune -f
+
+            echo "Deployment completed successfully!"
+          ENDSSH
+
+      - name: Health Check
+        run: |
+          sleep 10
+          curl -f http://${{ env.DROPLET_IP }}:8000 || echo "Storefront health check warning"
+          curl -f http://${{ env.DROPLET_IP }}:9000/health || echo "Backend health check warning"

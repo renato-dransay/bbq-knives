@@ -36,27 +36,11 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            # Stop existing containers
-            docker compose -f docker-compose.prod.yml down --remove-orphans || true
+            # Run deployment in background (to avoid GitHub Actions timeout)
+            nohup /opt/bbq-knives/deploy.sh > /var/log/bbq-knives-deploy.log 2>&1 &
 
-            # Build and start containers
-            docker compose -f docker-compose.prod.yml build --no-cache
-            docker compose -f docker-compose.prod.yml up -d
-
-            # Wait for services to be healthy
-            echo "Waiting for services to start..."
-            sleep 30
-
-            # Check container status
-            docker compose -f docker-compose.prod.yml ps
-
-            # Run database migrations if needed
-            docker compose -f docker-compose.prod.yml exec -T backend npm run db:migrate || true
-
-            # Cleanup old images
-            docker image prune -f
-
-            echo "Deployment completed successfully!"
+            echo "Deployment started in background"
+            echo "Check /var/log/bbq-knives-deploy.log for progress"
           ENDSSH
 
       - name: Health Check

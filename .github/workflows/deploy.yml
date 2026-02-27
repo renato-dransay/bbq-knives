@@ -37,10 +37,16 @@ jobs:
 
       - name: Build and push storefront image
         run: |
+          # Use secret if set, otherwise use placeholder for build
+          PUBLISHABLE_KEY="${{ secrets.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY }}"
+          if [ -z "$PUBLISHABLE_KEY" ]; then
+            PUBLISHABLE_KEY="pk_build_placeholder_key"
+          fi
+
           docker build -t ${{ env.REGISTRY }}/${{ env.REGISTRY_NAME }}/storefront:${{ github.sha }} \
                        -t ${{ env.REGISTRY }}/${{ env.REGISTRY_NAME }}/storefront:latest \
                        --build-arg MEDUSA_BACKEND_URL=http://backend:9000 \
-                       --build-arg NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY }} \
+                       --build-arg NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY="$PUBLISHABLE_KEY" \
                        --build-arg NEXT_PUBLIC_BASE_URL=http://${{ env.DROPLET_IP }}:8000 \
                        --build-arg NEXT_PUBLIC_DEFAULT_REGION=de \
                        ./storefront

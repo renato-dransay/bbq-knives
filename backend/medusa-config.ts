@@ -27,18 +27,18 @@ module.exports = defineConfig({
               apiKey: process.env.STRIPE_API_KEY,
             },
           },
-          // PayPal Payment Provider
-          {
-            resolve: "./src/modules/paypal",
-            id: "paypal",
-            options: {
-              client_id: process.env.PAYPAL_CLIENT_ID,
-              client_secret: process.env.PAYPAL_CLIENT_SECRET,
-              environment: process.env.PAYPAL_ENVIRONMENT || "sandbox",
-              autoCapture: process.env.PAYPAL_AUTO_CAPTURE === "true",
-              webhook_id: process.env.PAYPAL_WEBHOOK_ID,
-            },
-          },
+          // PayPal Payment Provider - temporarily disabled (needs type updates for new Medusa API)
+          // {
+          //   resolve: "./src/modules/paypal",
+          //   id: "paypal",
+          //   options: {
+          //     client_id: process.env.PAYPAL_CLIENT_ID,
+          //     client_secret: process.env.PAYPAL_CLIENT_SECRET,
+          //     environment: process.env.PAYPAL_ENVIRONMENT || "sandbox",
+          //     autoCapture: process.env.PAYPAL_AUTO_CAPTURE === "true",
+          //     webhook_id: process.env.PAYPAL_WEBHOOK_ID,
+          //   },
+          // },
         ],
       },
     },

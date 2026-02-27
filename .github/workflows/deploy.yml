@@ -1,4 +1,4 @@
-name: Deploy to DigitalOcean
+name: Build and Deploy to DigitalOcean
 
 on:
   push:
@@ -7,11 +7,48 @@ on:
   workflow_dispatch:
 
 env:
+  REGISTRY: registry.digitalocean.com
+  REGISTRY_NAME: bbq-knives
   DROPLET_IP: 209.38.205.122
   DEPLOY_PATH: /opt/bbq-knives
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Log in to DigitalOcean Container Registry
+        run: doctl registry login --expiry-seconds 1200
+
+      - name: Build and push backend image
+        run: |
+          docker build -t ${{ env.REGISTRY }}/${{ env.REGISTRY_NAME }}/backend:${{ github.sha }} \
+                       -t ${{ env.REGISTRY }}/${{ env.REGISTRY_NAME }}/backend:latest \
+                       ./backend
+          docker push ${{ env.REGISTRY }}/${{ env.REGISTRY_NAME }}/backend:${{ github.sha }}
+          docker push ${{ env.REGISTRY }}/${{ env.REGISTRY_NAME }}/backend:latest
+
+      - name: Build and push storefront image
+        run: |
+          docker build -t ${{ env.REGISTRY }}/${{ env.REGISTRY_NAME }}/storefront:${{ github.sha }} \
+                       -t ${{ env.REGISTRY }}/${{ env.REGISTRY_NAME }}/storefront:latest \
+                       --build-arg MEDUSA_BACKEND_URL=http://backend:9000 \
+                       --build-arg NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY }} \
+                       --build-arg NEXT_PUBLIC_BASE_URL=http://${{ env.DROPLET_IP }}:8000 \
+                       --build-arg NEXT_PUBLIC_DEFAULT_REGION=de \
+                       ./storefront
+          docker push ${{ env.REGISTRY }}/${{ env.REGISTRY_NAME }}/storefront:${{ github.sha }}
+          docker push ${{ env.REGISTRY }}/${{ env.REGISTRY_NAME }}/storefront:latest
+
   deploy:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -29,22 +66,25 @@ jobs:
           ssh -o StrictHostKeyChecking=no root@${{ env.DROPLET_IP }} << 'ENDSSH'
             set -e
 
-            # Navigate to deployment directory
-            cd ${{ env.DEPLOY_PATH }}
+            cd /opt/bbq-knives
 
-            # Pull latest changes
+            # Pull latest changes (for docker-compose and scripts)
             git fetch origin main
             git reset --hard origin/main
 
-            # Run deployment in background (to avoid GitHub Actions timeout)
-            nohup /opt/bbq-knives/deploy.sh > /var/log/bbq-knives-deploy.log 2>&1 &
+            # Pull new images and restart
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d
 
-            echo "Deployment started in background"
-            echo "Check /var/log/bbq-knives-deploy.log for progress"
+            # Cleanup old images
+            docker image prune -f
+
+            echo "Deployment complete!"
           ENDSSH
 
       - name: Health Check
         run: |
-          sleep 10
+          echo "Waiting for services to start..."
+          sleep 30
           curl -f http://${{ env.DROPLET_IP }}:8000 || echo "Storefront health check warning"
           curl -f http://${{ env.DROPLET_IP }}:9000/health || echo "Backend health check warning"

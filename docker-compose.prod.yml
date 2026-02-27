@@ -32,9 +32,7 @@ services:
       retries: 5
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: registry.digitalocean.com/bbq-knives/backend:latest
     container_name: bbq_backend
     restart: unless-stopped
     ports:
@@ -71,14 +69,7 @@ services:
       retries: 3
 
   storefront:
-    build:
-      context: ./storefront
-      dockerfile: Dockerfile
-      args:
-        MEDUSA_BACKEND_URL: ${MEDUSA_BACKEND_URL:-http://backend:9000}
-        NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY}
-        NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:-http://localhost:8000}
-        NEXT_PUBLIC_DEFAULT_REGION: ${NEXT_PUBLIC_DEFAULT_REGION:-de}
+    image: registry.digitalocean.com/bbq-knives/storefront:latest
     container_name: bbq_storefront
     restart: unless-stopped
     ports:

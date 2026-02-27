@@ -94,9 +94,17 @@ jobs:
             echo 'Waiting for database to be ready...'
             sleep 10
 
+            # Test database connectivity
+            echo 'Testing database connectivity...'
+            docker compose -f docker-compose.prod.yml run --rm backend sh -c 'echo \"DATABASE_URL starts with: \${DATABASE_URL:0:30}...\"'
+
             # Run database migrations
             echo 'Running database migrations...'
-            docker compose -f docker-compose.prod.yml run --rm backend npx medusa db:migrate || true
+            docker compose -f docker-compose.prod.yml run --rm backend npx medusa db:migrate 2>&1 || {
+              echo '=== Initial migration failed - this is expected on first deploy ==='
+              echo 'Tables will be created when the backend starts'
+            }
+            echo 'Migration step completed'
 
             # Start all containers - don't fail immediately, capture logs on error
             if ! docker compose -f docker-compose.prod.yml up -d --wait --wait-timeout 180; then

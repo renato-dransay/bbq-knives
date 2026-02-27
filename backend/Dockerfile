@@ -6,7 +6,7 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
+# Install ALL dependencies (needed for build)
 RUN npm ci
 
 # Copy source code
@@ -15,26 +15,26 @@ COPY . .
 # Build the application
 RUN npm run build
 
+# Now install production-only dependencies in a separate node_modules
+RUN rm -rf node_modules && npm ci --omit=dev
+
 # Production stage
 FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Set memory limit
+# Set memory limit for runtime only
 ENV NODE_OPTIONS="--max-old-space-size=384"
 
 # Create non-root user
 RUN addgroup -g 1001 -S medusa && \
     adduser -S medusa -u 1001
 
-# Copy package files and lockfile
+# Copy package files
 COPY package*.json ./
 
-# Copy production dependencies from builder (avoid running npm ci twice)
+# Copy production-only dependencies from builder (already pruned)
 COPY --from=builder /app/node_modules ./node_modules
-
-# Remove dev dependencies
-RUN npm prune --omit=dev
 
 # Copy built application from builder
 COPY --from=builder /app/.medusa ./.medusa

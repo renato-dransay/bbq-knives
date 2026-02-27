@@ -32,7 +32,7 @@ services:
       retries: 5
 
   backend:
-    image: registry.digitalocean.com/bbq-knives/backend:latest
+    image: ghcr.io/renato-dransay/bbq-knives-backend:latest
     container_name: bbq_backend
     restart: unless-stopped
     ports:
@@ -69,7 +69,7 @@ services:
       retries: 3
 
   storefront:
-    image: registry.digitalocean.com/bbq-knives/storefront:latest
+    image: ghcr.io/renato-dransay/bbq-knives-storefront:latest
     container_name: bbq_storefront
     restart: unless-stopped
     ports:

@@ -86,7 +86,18 @@ jobs:
 
             # Pull new images and restart
             docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d
+
+            # Start containers - don't fail immediately, capture logs on error
+            if ! docker compose -f docker-compose.prod.yml up -d --wait --wait-timeout 120; then
+              echo '=== DEPLOYMENT FAILED - Container logs ==='
+              echo '=== Backend logs ==='
+              docker logs bbq_backend --tail 100 2>&1 || true
+              echo '=== Storefront logs ==='
+              docker logs bbq_storefront --tail 100 2>&1 || true
+              echo '=== Container status ==='
+              docker ps -a
+              exit 1
+            fi
 
             # Cleanup old images
             docker image prune -f

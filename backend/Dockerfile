@@ -42,6 +42,9 @@ COPY --from=builder /app/.medusa ./.medusa
 # Copy compiled medusa-config.js to root (required by medusa start)
 COPY --from=builder /app/.medusa/server/medusa-config.js ./
 
+# Copy compiled src modules to root (custom modules are resolved from ./src/)
+COPY --from=builder /app/.medusa/server/src ./src
+
 # Change ownership
 RUN chown -R medusa:medusa /app
 

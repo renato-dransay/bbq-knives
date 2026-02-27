@@ -87,8 +87,19 @@ jobs:
             # Pull new images and restart
             docker compose -f docker-compose.prod.yml pull
 
-            # Start containers - don't fail immediately, capture logs on error
-            if ! docker compose -f docker-compose.prod.yml up -d --wait --wait-timeout 120; then
+            # Start database containers first
+            docker compose -f docker-compose.prod.yml up -d postgres redis
+
+            # Wait for postgres to be healthy
+            echo 'Waiting for database to be ready...'
+            sleep 10
+
+            # Run database migrations
+            echo 'Running database migrations...'
+            docker compose -f docker-compose.prod.yml run --rm backend npx medusa db:migrate || true
+
+            # Start all containers - don't fail immediately, capture logs on error
+            if ! docker compose -f docker-compose.prod.yml up -d --wait --wait-timeout 180; then
               echo '=== DEPLOYMENT FAILED - Container logs ==='
               echo '=== Backend logs ==='
               docker logs bbq_backend --tail 100 2>&1 || true

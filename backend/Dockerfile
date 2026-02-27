@@ -3,11 +3,14 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Set memory limit for npm to avoid OOM on small instances
+ENV NODE_OPTIONS="--max-old-space-size=384"
+
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci
+# Install dependencies with reduced memory usage
+RUN npm ci --prefer-offline
 
 # Copy source code
 COPY . .
@@ -20,15 +23,21 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
+# Set memory limit
+ENV NODE_OPTIONS="--max-old-space-size=384"
+
 # Create non-root user
 RUN addgroup -g 1001 -S medusa && \
     adduser -S medusa -u 1001
 
-# Copy package files
+# Copy package files and lockfile
 COPY package*.json ./
 
-# Install production dependencies only
-RUN npm ci --omit=dev
+# Copy production dependencies from builder (avoid running npm ci twice)
+COPY --from=builder /app/node_modules ./node_modules
+
+# Remove dev dependencies
+RUN npm prune --omit=dev
 
 # Copy built application from builder
 COPY --from=builder /app/.medusa ./.medusa

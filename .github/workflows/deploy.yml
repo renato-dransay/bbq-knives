@@ -70,10 +70,9 @@ jobs:
           ssh-keyscan -H ${{ env.DROPLET_IP }} >> ~/.ssh/known_hosts
 
       - name: Deploy to Droplet
-        env:
-          GHCR_PAT: ${{ secrets.GHCR_PAT }}
         run: |
-          ssh -o StrictHostKeyChecking=no root@${{ env.DROPLET_IP }} << ENDSSH
+          # Pass the PAT securely via SSH
+          ssh -o StrictHostKeyChecking=no root@${{ env.DROPLET_IP }} "
             set -e
 
             cd /opt/bbq-knives
@@ -83,7 +82,7 @@ jobs:
             git reset --hard origin/main
 
             # Login to GitHub Container Registry
-            echo "${GHCR_PAT}" | docker login ghcr.io -u renato-dransay --password-stdin
+            echo '${{ secrets.GHCR_PAT }}' | docker login ghcr.io -u renato-dransay --password-stdin
 
             # Pull new images and restart
             docker compose -f docker-compose.prod.yml pull
@@ -92,8 +91,8 @@ jobs:
             # Cleanup old images
             docker image prune -f
 
-            echo "Deployment complete!"
-          ENDSSH
+            echo 'Deployment complete!'
+          "
 
       - name: Health Check
         run: |

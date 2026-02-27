@@ -1,16 +1,13 @@
-# Build stage
+# Build stage - no memory limits here, CI has plenty of RAM
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Set memory limit for npm to avoid OOM on small instances
-ENV NODE_OPTIONS="--max-old-space-size=384"
-
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies with reduced memory usage
-RUN npm ci --prefer-offline
+# Install dependencies
+RUN npm ci
 
 # Copy source code
 COPY . .
